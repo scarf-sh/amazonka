@@ -684,6 +684,7 @@ data ObjectStorageClass
   | OSCReducedRedundancy
   | OSCStandard
   | OSCStandardIA
+  | OSCOnezoneIA
   deriving (Eq, Ord, Read, Show, Enum, Bounded, Data, Typeable, Generic)
 
 
@@ -693,8 +694,9 @@ instance FromText ObjectStorageClass where
         "reduced_redundancy" -> pure OSCReducedRedundancy
         "standard" -> pure OSCStandard
         "standard_ia" -> pure OSCStandardIA
+        "onezone_ia" -> pure OSCOnezoneIA
         e -> fromTextError $ "Failure parsing ObjectStorageClass from value: '" <> e
-           <> "'. Accepted values: glacier, reduced_redundancy, standard, standard_ia"
+           <> "'. Accepted values: glacier, reduced_redundancy, standard, standard_ia, onezone_ia"
 
 instance ToText ObjectStorageClass where
     toText = \case
