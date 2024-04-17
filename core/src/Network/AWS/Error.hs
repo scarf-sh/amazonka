@@ -109,7 +109,14 @@ serviceError a s h c m r =
 
 getRequestId :: [Header] -> Maybe RequestId
 getRequestId h =
-    either (const Nothing) Just (h .# hAMZRequestId <|> h .# hAMZNRequestId)
+    either (const Nothing) Just ((h .# hAMZRequestId) <|> (h .# hAMZNRequestId))
+  where 
+    (<|>) a b = 
+        case a of 
+            Left _ -> b
+            Right x -> Right x
+
+
 
 getErrorCode :: Status -> [Header] -> ErrorCode
 getErrorCode s h =
@@ -144,12 +151,17 @@ parseXMLError :: Abbrev
               -> Error
 parseXMLError a s h bs = decodeError a s h bs (decodeXML bs >>= go)
   where
+    (<|>) a b = 
+        case a of 
+            Left _ -> b
+            Right x -> Right x
+
     go x = serviceError a s h
         <$> code x
         <*> may (firstElement "Message"   x)
         <*> may (firstElement "RequestId" x  <|> firstElement "RequestID" x)
 
-    code x = Just <$> (firstElement "Code" x >>= parseXML)
+    code x = (Just <$> (firstElement "Code" x >>= parseXML))
          <|> return root
 
     root = errorCode <$> rootElementName bs
